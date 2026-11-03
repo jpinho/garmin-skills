@@ -1,0 +1,12 @@
+{
+  "name": "garmin-connect",
+  "description": "Read your Garmin Connect data (activities, FIT files, HRV, sleep, Body Battery, weight, food log) through Garmin's official read-only Personal API, and build a GPS-scrubbed local archive",
+  "author": {
+    "name": "João Pinho",
+    "url": "https://github.com/jpinho"
+  },
+  "homepage": "https://github.com/jpinho/garmin-skills",
+  "repository": "https://github.com/jpinho/garmin-skills",
+  "license": "MIT",
+  "keywords": ["garmin", "garmin-connect", "hrv", "sleep", "fit", "triathlon", "running", "cycling", "fitness"]
+}
