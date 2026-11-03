@@ -45,3 +45,7 @@ python3 skills/garmin-connect/scripts/garmin_fetch.py check
 - Training status, readiness, VO2 max history and the race predictor aren't exposed.
 - The rate limit is about 100 requests a minute, and the script backs off on HTTP 429.
 - Garmin's API spec is their documentation. `garmin_spec.py` fetches it on demand instead of shipping a copy.
+
+## License
+
+[MIT](LICENSE). Garmin and Garmin Connect are trademarks of Garmin Ltd.; this project is not affiliated with or endorsed by Garmin.
