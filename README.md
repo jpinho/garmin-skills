@@ -1,5 +1,7 @@
 # garmin-skills
 
+![garmin-connect: your Garmin data, ready for AI agents](assets/banner.webp)
+
 Agent skills for working with your own Garmin data.
 
 ## `garmin-connect`
