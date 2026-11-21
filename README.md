@@ -25,8 +25,20 @@ skills/garmin-connect/
 │   └── garmin_spec.py        # fetches Garmin's OpenAPI spec and looks up schemas
 └── references/
     ├── endpoints.md          # all 26 endpoints, params, range limits, auth facts
-    └── data-model.md         # archive files, units, key fields, joins
+    ├── data-model.md         # archive files, units, key fields, joins
+    └── terms.md              # what Garmin's terms say about a personal key, quoted
 ```
+
+### Garmin's terms
+
+A personal API key is for its owner's own data, with tools they run for themselves, and it may not be shared with anyone. Garmin's terms for the Personal API say nothing about AI models either way. [`references/terms.md`](skills/garmin-connect/references/terms.md) has the clauses, the pages and the date they were read.
+
+### With the other SI skills
+
+`garmin-connect` is one of the [SI: Sports Intelligence](https://github.com/jpinho/sports-intelligence) skills. Two of the others read its output directly:
+
+- **`readiness`** turns saved HRV, sleep and daily-summary responses into daily rows (`si_readiness.py from-garmin`) and answers "train as planned, back off or rest" from your own baselines.
+- **`activity-analysis`** reads the original FIT files with the standard library only: load, zones, peaks, grade-adjusted pace and decoupling, with nothing to install.
 
 ### Install
 

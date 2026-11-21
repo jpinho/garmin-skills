@@ -7,6 +7,8 @@ description: Read the user's own Garmin Connect data through Garmin's official P
 
 Garmin's **official Personal API** gives read-only access to a user's own Garmin Connect data. The bundled `scripts/garmin_fetch.py` wraps it: the key-for-token exchange, the retries, the rate limit, and a privacy scrub for anything archived. Paths below are relative to this skill's directory. The scripts use only the standard library, except `garmin_fit.py`, which needs `pip install fitdecode numpy`.
 
+**Garmin's terms:** a personal key is for its owner's own data, with tools they run for themselves, and it may not be shared with anyone. The terms say nothing about AI models either way. The clauses are in `references/terms.md`.
+
 If the project already holds an archive (`find . -name 'garmin_*.json.gz'`), read that first. Call the API only for days after its end date, or for data it doesn't hold.
 
 ## Before anything
@@ -29,7 +31,7 @@ If the project already holds an archive (`find . -name 'garmin_*.json.gz'`), rea
 | History already archived | The archive files. Their fields, units and joins are in `references/data-model.md`. |
 | Anything recent, or one-off | `python3 scripts/garmin_fetch.py get "PATH"`. All 26 endpoints are in `references/endpoints.md`. |
 | A response field you don't recognise | `python3 scripts/garmin_spec.py fetch <tmp>/spec.json` once, then `show <tmp>/spec.json SCHEMA [TEXT]` for Garmin's description and unit |
-| Peak power, HR or pace, best times by distance, decoupling, from a FIT file | `python3 scripts/garmin_fit.py FILE.fit`, or `archive --fit` for every activity |
+| Peak power, HR or pace, best times by distance, decoupling, from a FIT file | `python3 scripts/garmin_fit.py FILE.fit`, or `archive --fit` for every activity. If the `activity-analysis` skill is installed, its `si_activity.py summary FILE.fit` does the same with nothing to install |
 
 ## Recipes
 
@@ -73,6 +75,7 @@ python3 scripts/garmin_fetch.py archive FIRST_DAY YESTERDAY --details --fit -d <
 ## Rules
 
 - **Read-only.** You can't comment on, edit or upload anything to Garmin. Structured workouts reach the watch through another platform (e.g. TrainingPeaks or Garmin's own app).
+- **One person, one key.** Use a key only for its owner's data. Never use it to serve anyone else, and never log in to Garmin Connect with a password or call endpoints outside the Personal API.
 - **Privacy:**
   - `archive` scrubs GPS, place names and owner fields, but `get` does not.
   - Keep raw `get` output in a temp directory. Commit only summaries, or data passed through `garmin_fetch.scrub()`.
