@@ -16,7 +16,7 @@ Usage:
   garmin_fetch.py check                         # exchange the key, print token scopes and expiry
   garmin_fetch.py get PATH [-o OUT]             # one GET, e.g. /hrv-service/hrv/2026-11-02
   garmin_fetch.py archive START END [-d DIR] [--details] [--fit] [--work CACHE]
-        HRV, sleep, daily summaries, weight, activities, fitness age, HR zones (+ every activity's
+        HRV, sleep, daily summaries, weight, VO2 max, activities, fitness age, HR zones (+ every activity's
         detail record, + metrics from every original FIT file via garmin_fit.py, which needs
         fitdecode and numpy) -> DIR/garmin_<kind>_<START>_<END>.json.gz
         GPS, place names and owner fields are dropped. FIT files are deleted after extraction.
@@ -168,7 +168,7 @@ def _fit_job(token, aid, work):
 
 def archive(g, start, end, out_dir, details=False, fit=False, work=None, workers=3):
     """Everything the Personal API holds between START and END, gzipped into OUT_DIR.
-    Wellness (HRV, sleep, daily summaries, weight), activities, fitness age and HR zones always;
+    Wellness (HRV, sleep, daily summaries, weight, VO2 max), activities, fitness age and HR zones always;
     per-activity detail records with --details; metrics from every original FIT file with --fit.
     WORK holds a resumable per-activity cache (default: a temp dir)."""
     os.makedirs(out_dir, exist_ok=True)
@@ -198,6 +198,14 @@ def archive(g, start, end, out_dir, details=False, fit=False, work=None, workers
         w = g.get(f"/weight-service/weight/range/{a}/{b}") or {}
         weight += w.get("dailyWeightSummaries", []) if isinstance(w, dict) else []
     _save(out_dir, "weight", tag, weight)
+
+    vo2 = []
+    for a, b in chunks(start, end, 366):
+        try:
+            vo2 += [x for x in (g.get(f"/metrics-service/metrics/maxmet/daily/{a}/{b}") or []) if x]
+        except RuntimeError as e:      # a newer endpoint: an account or region without it must not stop the archive
+            print(f"vo2max {a}..{b}: {str(e)[:80]}", file=sys.stderr, flush=True)
+    _save(out_dir, "vo2max", tag, vo2)
 
     acts, i = [], 0
     while True:

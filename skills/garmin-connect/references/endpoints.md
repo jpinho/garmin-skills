@@ -1,6 +1,6 @@
 # Garmin Connect Personal API: endpoints
 
-Source: the official Swagger docs at https://developer.garmin.com/gc-developer-program/personal/swagger-docs/ (OpenAPI 3.0.1, "Garmin Connect Personal API" 1.0.0). For a full response schema, with field types and units, fetch the spec locally with `scripts/garmin_spec.py` (below). Summarised 2026-11-03.
+Source: the official Swagger docs at https://developer.garmin.com/gc-developer-program/personal/swagger-docs/ (OpenAPI 3.0.1, "Garmin Connect Personal API" 1.0.0). For a full response schema, with field types and units, fetch the spec locally with `scripts/garmin_spec.py` (below). Summarised 2026-11-03; two endpoints Garmin added since (daily VO2 max, the activity-type list) were added on 2026-11-21, when the spec listed 28 paths.
 
 ## Facts that apply to every call
 
@@ -26,11 +26,13 @@ Range limits, from the spec's descriptions. `garmin_fetch.py archive` chunks to 
 | `/usersummary-service/v2/dailysummaries` | 1 year | 28 |
 | `/hrv-service/hrv/daily/…` | not stated | 28 |
 | `/weight-service/weight/range/…` | not stated | 366 |
+| `/weight-service/weight/all/…` | 364 days | — |
+| `/metrics-service/metrics/maxmet/daily/…` | not stated. A 366-day range worked on 2026-11-21 | 366 |
 | `/activitylist-service/activities/search/activities` | paginated: `start`, `limit` (100 works) | pages of 100 |
 
 ## Not available in this API
 
-Training status, training readiness, acute/chronic load, VO2 max history, endurance score, hill score, race predictor, the lactate-threshold and FTP history charts. Some exist only per activity: `lactateThresholdBpm` and `maxFtp` on the activity list (the spec also lists `vO2MaxValue`, but it was missing from every one of 2,000+ activities checked), and `lactateThresholdHeartRate`/`lactateThresholdSpeed` in `summaryDTO`. For the trend charts, ask the user for a Garmin Connect screenshot.
+Training status, training readiness, acute/chronic load, endurance score, hill score, race predictor, the lactate-threshold and FTP history charts. Some exist only per activity: `lactateThresholdBpm` and `maxFtp` on the activity list (the spec also lists `vO2MaxValue`, but it was missing from every one of 2,000+ activities checked), and `lactateThresholdHeartRate`/`lactateThresholdSpeed` in `summaryDTO`. For the trend charts, ask the user for a Garmin Connect screenshot.
 
 Nothing can be written either: no comments, no workout upload, no activity edits.
 
@@ -61,6 +63,13 @@ Retrieves workouts performed during an activity
 
 - Params: `activityId` (path, int64)
 - Returns: `ActivityWorkoutDTO[]` — top-level fields: `index`, `workoutName`, `timeCreated`, `sport`, `manufacturer`, `multisportSet`, `steps`, `workoutPhrase`
+
+### `GET /activity-service/activity/activityTypes/simple`
+
+Returns all of the activity types supported by the system, in a simplified format.
+
+- Params: none
+- Returns: `SimpleActivityTypeDTO[]` — fields: `key`, `parent`. A parent type has no `parent`. About 155 types on 2026-11-21. Use it to group `activityType.typeKey` values (`trail_running` → `running`) instead of a hand-made list.
 
 ### `GET /activitylist-service/activities/search/activities`
 
@@ -110,6 +119,14 @@ Get HRV daily summaries for a date range
 
 - Params: `fromDate` (path, date), `toDate` (path, date)
 - Returns: `HrvDailySummaryDTO` — top-level fields: `hrvSummaries`, `userProfilePk`
+
+### `GET /metrics-service/metrics/maxmet/daily/{startDate}/{endDate}`
+
+Get daily VO2 Max data for the given time range.
+
+- Params: `startDate` (path, date), `endDate` (path, date), `sport` (query, optional list such as `RUNNING`, `CYCLING`)
+- Returns: `MaxMetDTO[]` — fields: `generic`, `cycling`, `rowing`, each null or a `VO2MaxDTO` with `calendarDate`, `vo2MaxPreciseValue`, `vo2MaxValue` (the live answer also carries `sport` and `subSport`). One entry per day on which Garmin updated the estimate, not one per calendar day. `generic` is the running estimate.
+- Seen live on 2026-11-21. Other public clients reported 404 for VO2 max earlier in November 2026, so Garmin added it during that month.
 
 ### `GET /nutrition-service/food/logs/{date}`
 

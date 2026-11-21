@@ -24,7 +24,7 @@ skills/garmin-connect/
 │   ├── garmin_fit.py         # metrics from a FIT file (needs fitdecode, numpy)
 │   └── garmin_spec.py        # fetches Garmin's OpenAPI spec and looks up schemas
 └── references/
-    ├── endpoints.md          # all 26 endpoints, params, range limits, auth facts
+    ├── endpoints.md          # all 28 endpoints, params, range limits, auth facts
     ├── data-model.md         # archive files, units, key fields, joins
     └── terms.md              # what Garmin's terms say about a personal key, quoted
 ```
@@ -74,7 +74,7 @@ python3 skills/garmin-connect/scripts/garmin_fetch.py check
 ### Notes
 
 - The API is read-only: there's no workout upload and no comments.
-- Training status, readiness, VO2 max history and the race predictor aren't exposed.
+- Daily VO2 max is exposed (Garmin added it in November 2026). Training status, readiness and the race predictor aren't.
 - The rate limit is about 100 requests a minute, and the script backs off on HTTP 429.
 - Garmin's API spec is their documentation. `garmin_spec.py` fetches it on demand instead of shipping a copy.
 

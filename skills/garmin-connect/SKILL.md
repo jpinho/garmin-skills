@@ -29,7 +29,7 @@ If the project already holds an archive (`find . -name 'garmin_*.json.gz'`), rea
 | Need | Use |
 |---|---|
 | History already archived | The archive files. Their fields, units and joins are in `references/data-model.md`. |
-| Anything recent, or one-off | `python3 scripts/garmin_fetch.py get "PATH"`. All 26 endpoints are in `references/endpoints.md`. |
+| Anything recent, or one-off | `python3 scripts/garmin_fetch.py get "PATH"`. All 28 endpoints are in `references/endpoints.md`. |
 | A response field you don't recognise | `python3 scripts/garmin_spec.py fetch <tmp>/spec.json` once, then `show <tmp>/spec.json SCHEMA [TEXT]` for Garmin's description and unit |
 | Peak power, HR or pace, best times by distance, decoupling, from a FIT file | `python3 scripts/garmin_fit.py FILE.fit`, or `archive --fit` for every activity. If the `activity-analysis` skill is installed, its `si_activity.py summary FILE.fit` does the same with nothing to install |
 
@@ -46,6 +46,9 @@ python3 scripts/garmin_fetch.py get "/usersummary-service/usersummary/daily?cale
 # The latest activities, then one in full (training effect, load, GAP, running dynamics)
 python3 scripts/garmin_fetch.py get "/activitylist-service/activities/search/activities?start=0&limit=10"
 python3 scripts/garmin_fetch.py get /activity-service/activity/ID
+
+# VO2 max, one entry per day Garmin updated it (generic is running; cycling is separate)
+python3 scripts/garmin_fetch.py get /metrics-service/metrics/maxmet/daily/START/D
 
 # One day's food log (kcal and macros in dailyNutritionContent)
 python3 scripts/garmin_fetch.py get "/nutrition-service/food/logs/D?includeMedia=false"
@@ -70,7 +73,8 @@ python3 scripts/garmin_fetch.py archive FIRST_DAY YESTERDAY --details --fit -d <
 - **Training effect:** an aerobic TE of 3.0 or more on a run that was meant to be easy means it wasn't easy.
 - **HRV `status`** is judged against Garmin's own baseline (`baseline.balancedLow`–`balancedUpper`). Trust the trend over a single night. Two or more `LOW` or `UNBALANCED` nights in a row is the signal, not one.
 - **Garmin's training load is its own model.** It isn't TrainingPeaks' TSS, and it isn't CTL/ATL. Never mix them in one series or one table.
-- **Not in the API:** training status, training readiness, VO2 max history, endurance and hill scores, the race predictor, and the LT and FTP trend charts. Ask the user for a Garmin Connect screenshot rather than estimating.
+- **VO2 max is Garmin's estimate,** from pace or power against heart rate. Quote it as Garmin's, with the date, and read the trend over weeks: one entry moves with heat, hills and a tired day.
+- **Not in the API:** training status, training readiness, endurance and hill scores, the race predictor, and the LT and FTP trend charts. Ask the user for a Garmin Connect screenshot rather than estimating.
 
 ## Rules
 

@@ -23,6 +23,7 @@ Glob the file names rather than hard-coding the dates: the end date moves on eve
 | `sleep` | list | `calendarDate` | one night's sleep |
 | `daily` | list | `calendarDate` | one day's wellness summary |
 | `weight` | list | `summaryDate` | one day with at least one weigh-in |
+| `vo2max` | list | `generic.calendarDate` | one day on which Garmin updated its VO2 max estimate |
 | `fitnessage` | dict | — | the latest fitness age, as of END |
 | `hrzones` | list | `sport` | the HR zone setup per sport (`DEFAULT`, `RUNNING`, `CYCLING`, …) |
 
@@ -88,6 +89,8 @@ Common `activityType.typeKey` values:
 - `intensityMinutes.{moderate, vigorous}`
 - `movement.steps.value`
 - `respiration` and `pulseOx`
+
+**vo2max**: `generic` (running) and `cycling`, each null or `{calendarDate, vo2MaxPreciseValue, vo2MaxValue}`. Days without an update have no row: carry the last value forward only when you say you are doing so.
 
 **weight → `latestWeight`**: `weight` (g), `bmi`, `bodyFat`, `muscleMass` (g), and `sourceType` (`INDEX_SCALE` is Garmin's smart scale).
 
