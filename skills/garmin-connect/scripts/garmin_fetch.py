@@ -33,11 +33,32 @@ import sys
 import tempfile
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 import zipfile
 
 API = "https://personal.connectapi.garmin.com"
 TOKEN_PATH = "/personalapitoken-service/personal-api/personal-api-key/token"
+
+
+class _KeepSecretsHome(urllib.request.HTTPRedirectHandler):
+    """urllib resends every header to wherever a redirect points. The key and the token go to Garmin's API host only:
+    a redirect to another host is followed without them, and a redirect off HTTPS is not followed at all."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        new = super().redirect_request(req, fp, code, msg, headers, newurl)
+        if new is None:
+            return None
+        was, now = urllib.parse.urlsplit(req.full_url), urllib.parse.urlsplit(new.full_url)
+        if now.scheme != "https":
+            return None
+        if now.netloc.lower() != was.netloc.lower():
+            for name in [h for h in new.headers if h.lower() == "authorization"]:
+                del new.headers[name]
+        return new
+
+
+_OPENER = urllib.request.build_opener(_KeepSecretsHome)
 
 
 def _http(method, url, headers, retries=6):
@@ -47,7 +68,7 @@ def _http(method, url, headers, retries=6):
     while True:
         req = urllib.request.Request(url, data=b"" if method == "POST" else None, method=method, headers=headers)
         try:
-            with urllib.request.urlopen(req, timeout=90) as r:
+            with _OPENER.open(req, timeout=90) as r:
                 return r.status, r.read()
         except urllib.error.HTTPError as e:
             body = e.read()
